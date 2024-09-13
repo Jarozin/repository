@@ -20,6 +20,7 @@ func (repo *SerialsActorsRepoPostgres) GetSerialsActors() ([]*models.SerialsActo
 	serialsActors := []*models.SerialsActors{}
 	err := repo.db.Select(&serialsActors, "SELECT * FROM serials_actors")
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return serialsActors, nil
@@ -30,6 +31,7 @@ func (repo *SerialsActorsRepoPostgres) GetSerialsActorsById(id int) (*models.Ser
 	serialActor := &models.SerialsActors{}
 	err := repo.db.Get(serialActor, "SELECT * FROM serials_actors WHERE id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return serialActor, nil
@@ -45,6 +47,7 @@ func (repo *SerialsActorsRepoPostgres) CreateSerialsActors(serialActor *models.S
 	err := repo.db.QueryRow("INSERT INTO serials_actors (sa_idSerial, sa_idActor) VALUES ($1, $2) RETURNING sa_id",
 		serialActor.GetIdSerial(), serialActor.GetIdActor()).Scan(&id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	serialActor.SetId(int(id))
@@ -62,6 +65,7 @@ func (repo *SerialsActorsRepoPostgres) UpdateSerialsActors(serialActor *models.S
 		serialActor.GetIdSerial(), serialActor.GetIdActor(), serialActor.GetId())
 
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 
@@ -73,6 +77,7 @@ func (repo *SerialsActorsRepoPostgres) GetSerialsByActorId(id int) ([]*models.Se
 	serialsActors := []*models.SerialsActors{}
 	err := repo.db.Select(&serialsActors, "SELECT * FROM serials_actors WHERE sa_idActor=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return serialsActors, nil
@@ -92,6 +97,7 @@ func (repo *SerialsActorsRepoPostgres) DeleteSerialsActors(id int) error {
 	repo.log.Info("Deleting serials_actors from the database")
 	_, err := repo.db.Exec("DELETE FROM serials_actors WHERE sa_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	return nil

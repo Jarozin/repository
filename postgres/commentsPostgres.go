@@ -20,6 +20,7 @@ func (repo *CommentsRepoPostgres) GetComments() ([]*models.Comments, error) {
 	comments := []*models.Comments{}
 	err := repo.db.Select(&comments, "SELECT * FROM comments")
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return comments, nil
@@ -30,6 +31,7 @@ func (repo *CommentsRepoPostgres) GetCommentById(id int) (*models.Comments, erro
 	comment := &models.Comments{}
 	err := repo.db.Get(comment, "SELECT * FROM comments WHERE c_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return comment, nil
@@ -40,6 +42,7 @@ func (repo *CommentsRepoPostgres) GetCommentsBySerialId(idSerial int) ([]*models
 	comments := []*models.Comments{}
 	err := repo.db.Select(&comments, "SELECT * FROM comments WHERE c_idSerial=$1", idSerial)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return comments, nil
@@ -50,6 +53,7 @@ func (repo *CommentsRepoPostgres) GetCommentsByUserId(idUser int) ([]*models.Com
 	comments := []*models.Comments{}
 	err := repo.db.Select(&comments, "SELECT * FROM comments WHERE c_idUser=$1", idUser)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return comments, nil
@@ -60,6 +64,7 @@ func (repo *CommentsRepoPostgres) GetCommentsBySerialIdUserId(idSerial, idUser i
 	comment := &models.Comments{}
 	err := repo.db.Get(comment, "SELECT * FROM comments WHERE c_idSerial=$1 AND c_idUser=$2", idSerial, idUser)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return comment, nil
@@ -75,6 +80,7 @@ func (repo *CommentsRepoPostgres) CreateComment(comment *models.Comments) error 
 	err := repo.db.QueryRow("INSERT INTO comments (c_text, c_date, c_idUser, c_idSerial) VALUES ($1, $2, $3, $4) RETURNING c_id",
 		comment.GetText(), comment.GetDate(), comment.GetIdUser(), comment.GetIdSerial()).Scan(&id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	comment.SetId(int(id))
@@ -92,6 +98,7 @@ func (repo *CommentsRepoPostgres) UpdateComment(comment *models.Comments) error 
 		comment.GetText(), comment.GetDate(), comment.GetIdUser(), comment.GetId())
 
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 
@@ -102,6 +109,7 @@ func (repo *CommentsRepoPostgres) DeleteComment(id int) error {
 	repo.log.Info("Deleting comment from the database")
 	_, err := repo.db.Exec("DELETE FROM comments WHERE c_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 

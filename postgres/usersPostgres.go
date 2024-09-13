@@ -35,6 +35,7 @@ func (repo *UsersRepoPostgres) GetUsers() ([]*models.Users, error) {
 	users := []*models.Users{}
 	err := repo.db.Select(&users, "SELECT * FROM users")
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDateList(users)
@@ -46,6 +47,7 @@ func (repo *UsersRepoPostgres) GetUserById(id int) (*models.Users, error) {
 	user := &models.Users{}
 	err := repo.db.Get(user, "SELECT * FROM users WHERE u_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDate(user)
@@ -57,6 +59,7 @@ func (repo *UsersRepoPostgres) GetUserByLogin(login string) (*models.Users, erro
 	user := &models.Users{}
 	err := repo.db.Get(user, "SELECT * FROM users WHERE u_login=$1", login)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDate(user)
@@ -73,6 +76,7 @@ func (repo *UsersRepoPostgres) CreateUser(user *models.Users) error {
 	err := repo.db.QueryRow("INSERT INTO users (u_login, u_password, u_role, u_name, u_surname, u_gender, u_bdate, u_idFavourites) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING u_id",
 		user.GetLogin(), user.GetPassword(), user.GetRole(), user.GetName(), user.GetSurname(), user.GetGender(), user.GetBdate(), user.GetIdFavourites()).Scan(&id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	user.SetId(int(id))
@@ -100,6 +104,7 @@ func (repo *UsersRepoPostgres) DeleteUser(id int) error {
 	repo.log.Info("Deleting user from the database")
 	_, err := repo.db.Exec("DELETE FROM users WHERE u_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	return nil

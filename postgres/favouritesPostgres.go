@@ -20,6 +20,7 @@ func (repo *FavouritesRepoPostgres) GetFavourites() ([]*models.Favourites, error
 	favourites := []*models.Favourites{}
 	err := repo.db.Select(&favourites, "SELECT * FROM favourites")
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return favourites, nil
@@ -30,6 +31,7 @@ func (repo *FavouritesRepoPostgres) GetFavouriteById(id int) (*models.Favourites
 	favourite := &models.Favourites{}
 	err := repo.db.Get(favourite, "SELECT * FROM favourites WHERE f_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return favourite, nil
@@ -45,6 +47,7 @@ func (repo *FavouritesRepoPostgres) CreateFavourite(favourite *models.Favourites
 	err := repo.db.QueryRow("INSERT INTO favourites (f_cntSerials) VALUES ($1) RETURNING f_id",
 		favourite.GetCntSerials()).Scan(&id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return -1, err
 	}
 
@@ -63,6 +66,7 @@ func (repo *FavouritesRepoPostgres) UpdateFavourite(favourite *models.Favourites
 		favourite.GetCntSerials(), favourite.GetId())
 
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 
@@ -73,6 +77,7 @@ func (repo *FavouritesRepoPostgres) DeleteFavourite(id int) error {
 	repo.log.Info("Deleting favourite from the database")
 	_, err := repo.db.Exec("DELETE FROM favourites WHERE f_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	return nil

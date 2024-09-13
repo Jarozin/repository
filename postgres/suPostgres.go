@@ -35,6 +35,7 @@ func (repo *SerialsUsersRepoPostgres) GetSerialsUsers() ([]*models.SerialsUsers,
 	serialsUsers := []*models.SerialsUsers{}
 	err := repo.db.Select(&serialsUsers, "SELECT * FROM serials_users")
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDateList(serialsUsers)
@@ -46,6 +47,7 @@ func (repo *SerialsUsersRepoPostgres) GetSerialsByUserId(id int) ([]*models.Seri
 	serialsUsers := []*models.SerialsUsers{}
 	err := repo.db.Select(&serialsUsers, "SELECT * FROM serials_users WHERE su_idUser=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDateList(serialsUsers)
@@ -57,6 +59,7 @@ func (repo *SerialsUsersRepoPostgres) GetUsersBySerialId(id int) ([]*models.Seri
 	serialsUsers := []*models.SerialsUsers{}
 	err := repo.db.Select(&serialsUsers, "SELECT * FROM serials_users WHERE su_idSerial=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDateList(serialsUsers)
@@ -68,6 +71,7 @@ func (repo *SerialsUsersRepoPostgres) GetSerialsUsersById(id int) (*models.Seria
 	serialUser := &models.SerialsUsers{}
 	err := repo.db.Get(serialUser, "SELECT * FROM serials_users WHERE su_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDate(serialUser)
@@ -79,6 +83,7 @@ func (repo *SerialsUsersRepoPostgres) GetSerialUserByIds(serialId, userId int) (
 	serialUser := &models.SerialsUsers{}
 	err := repo.db.Get(serialUser, "SELECT * FROM serials_users WHERE su_idUser=$1 AND su_idSerial=$2", userId, serialId)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDate(serialUser)
@@ -95,6 +100,7 @@ func (repo *SerialsUsersRepoPostgres) CreateSerialsUsers(serialUser *models.Seri
 	err := repo.db.QueryRow("INSERT INTO serials_users (su_idSerial, su_idUser, su_lastSeen) VALUES ($1, $2, $3) RETURNING su_id",
 		serialUser.GetIdSerial(), serialUser.GetIdUser(), serialUser.GetLastSeen()).Scan(&id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	serialUser.SetId(int(id))
@@ -112,6 +118,7 @@ func (repo *SerialsUsersRepoPostgres) UpdateSerialsUsers(serialUser *models.Seri
 		serialUser.GetIdSerial(), serialUser.GetIdUser(), serialUser.GetLastSeen(), serialUser.GetId())
 
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 
@@ -122,6 +129,7 @@ func (repo *SerialsUsersRepoPostgres) DeleteSerialsByUserId(id int) error {
 	repo.log.Info("Deleting serials_users by user id from the database")
 	_, err := repo.db.Exec("DELETE FROM serials_users WHERE su_idUser=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	return nil

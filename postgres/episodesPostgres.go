@@ -35,6 +35,7 @@ func (repo *EpisodesRepoPostgres) GetEpisodes() ([]*models.Episodes, error) {
 	episodes := []*models.Episodes{}
 	err := repo.db.Select(&episodes, "SELECT * FROM episodes")
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDateList(episodes)
@@ -46,6 +47,7 @@ func (repo *EpisodesRepoPostgres) GetEpisodeById(id int) (*models.Episodes, erro
 	episode := &models.Episodes{}
 	err := repo.db.Get(episode, "SELECT * FROM episodes WHERE id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDate(episode)
@@ -57,6 +59,7 @@ func (repo *EpisodesRepoPostgres) GetEpisodesBySeasonId(id int) ([]*models.Episo
 	episodes := []*models.Episodes{}
 	err := repo.db.Select(&episodes, "SELECT * FROM episodes WHERE e_idSeason=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDateList(episodes)
@@ -73,6 +76,7 @@ func (repo *EpisodesRepoPostgres) CreateEpisode(episode *models.Episodes) error 
 	err := repo.db.QueryRow("INSERT INTO episodes (e_name, e_date, e_idSeason, e_num, e_duration) VALUES ($1, $2, $3, $4, $5) RETURNING e_id",
 		episode.GetName(), episode.GetDate(), episode.GetIdSeason(), episode.GetNum(), episode.GetDuration()).Scan(&id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	episode.SetId(int(id))
@@ -90,6 +94,7 @@ func (repo *EpisodesRepoPostgres) UpdateEpisode(episode *models.Episodes) error 
 		episode.GetName(), episode.GetDate(), episode.GetIdSeason(), episode.GetNum(), episode.GetDuration(), episode.GetId())
 
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 
@@ -100,6 +105,7 @@ func (repo *EpisodesRepoPostgres) DeleteEpisode(id int) error {
 	repo.log.Info("Deleting episode from the database")
 	_, err := repo.db.Exec("DELETE FROM episodes WHERE e_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	return nil

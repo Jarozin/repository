@@ -35,6 +35,7 @@ func (repo *SeasonsRepo) GetSeasons() ([]*models.Seasons, error) {
 	seasons := []*models.Seasons{}
 	err := repo.db.Select(&seasons, "SELECT * FROM seasons")
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDateList(seasons)
@@ -46,6 +47,7 @@ func (repo *SeasonsRepo) GetSeasonById(id int) (*models.Seasons, error) {
 	season := &models.Seasons{}
 	err := repo.db.Get(season, "SELECT * FROM seasons WHERE id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDate(season)
@@ -57,6 +59,7 @@ func (repo *SeasonsRepo) GetSeasonsBySerialId(id int) ([]*models.Seasons, error)
 	seasons := []*models.Seasons{}
 	err := repo.db.Select(&seasons, "SELECT * FROM seasons WHERE ss_idSerial=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	repo.FormatDateList(seasons)
@@ -73,6 +76,7 @@ func (repo *SeasonsRepo) CreateSeason(season *models.Seasons) error {
 	err := repo.db.QueryRow("INSERT INTO seasons (ss_id, ss_name, ss_date, ss_idSerial, ss_num, ss_cntEpisodes) VALUES ($1, $2, $3, $4, $5) RETURNING ss_id",
 		season.GetName(), season.GetDate(), season.GetIdSerial(), season.GetNum(), season.GetCntEpisodes()).Scan(&id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	season.SetId(int(id))
@@ -90,6 +94,7 @@ func (repo *SeasonsRepo) UpdateSeason(season *models.Seasons) error {
 		season.GetName(), season.GetDate(), season.GetIdSerial(), season.GetNum(), season.GetCntEpisodes(), season.GetId())
 
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 
@@ -100,6 +105,7 @@ func (repo *SeasonsRepo) DeleteSeason(id int) error {
 	repo.log.Info("Deleting season from the database")
 	_, err := repo.db.Exec("DELETE FROM seasons WHERE s_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	return nil

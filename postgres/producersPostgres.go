@@ -20,6 +20,7 @@ func (repo *ProducersRepoPostgres) GetProducers() ([]*models.Producers, error) {
 	producers := []*models.Producers{}
 	err := repo.db.Select(&producers, "SELECT * FROM producers")
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return producers, nil
@@ -30,6 +31,7 @@ func (repo *ProducersRepoPostgres) GetProducerById(id int) (*models.Producers, e
 	producer := &models.Producers{}
 	err := repo.db.Get(producer, "SELECT * FROM producers WHERE p_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return producer, nil
@@ -62,6 +64,7 @@ func (repo *ProducersRepoPostgres) UpdateProducer(producer *models.Producers) er
 		producer.GetName(), producer.GetSurname(), producer.GetId())
 
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 
@@ -72,6 +75,7 @@ func (repo *ProducersRepoPostgres) DeleteProducer(id int) error {
 	repo.log.Info("Deleting producer from the database")
 	_, err := repo.db.Exec("DELETE FROM producers WHERE p_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	return nil

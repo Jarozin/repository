@@ -20,6 +20,7 @@ func (repo *ActorsRepoPostgres) GetActors() ([]*models.Actors, error) {
 	actors := []*models.Actors{}
 	err := repo.db.Select(&actors, "SELECT * FROM actors")
 	if err != nil {
+		repo.log.Errorf("Error getting actors: %v", err)
 		return nil, err
 	}
 	return actors, nil
@@ -30,6 +31,7 @@ func (repo *ActorsRepoPostgres) GetActorById(id int) (*models.Actors, error) {
 	actor := &models.Actors{}
 	err := repo.db.Get(actor, "SELECT * FROM actors WHERE a_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error getting actor: %v", err)
 		return nil, err
 	}
 	return actor, nil
@@ -45,6 +47,7 @@ func (repo *ActorsRepoPostgres) CreateActor(actor *models.Actors) error {
 	err := repo.db.QueryRow("INSERT INTO actors (a_name, a_surname, a_gender, a_bdate) VALUES ($1, $2, $3, $4) RETURNING a_id",
 		actor.GetName(), actor.GetSurname(), actor.GetGender(), actor.GetBdate()).Scan(&id)
 	if err != nil {
+		repo.log.Errorf("Error creating actor: %v", err)
 		return err
 	}
 	actor.SetId(int(id))
@@ -62,6 +65,7 @@ func (repo *ActorsRepoPostgres) UpdateActor(actor *models.Actors) error {
 		actor.GetName(), actor.GetSurname(), actor.GetGender(), actor.GetBdate(), actor.GetId())
 
 	if err != nil {
+		repo.log.Errorf("Error updating actor: %v", err)
 		return err
 	}
 
@@ -73,6 +77,7 @@ func (repo *ActorsRepoPostgres) DeleteActor(id int) error {
 	_, err := repo.db.Exec("DELETE FROM actors WHERE a_id=$1", id)
 	repo.log.Info(err)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	return nil

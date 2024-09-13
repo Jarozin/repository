@@ -20,6 +20,7 @@ func (repo *SerialsFavouritesRepoPostgres) GetSerialsFavourites() ([]*models.Ser
 	serialsFavourites := []*models.SerialsFavourites{}
 	err := repo.db.Select(&serialsFavourites, "SELECT * FROM serials_favourites")
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return serialsFavourites, nil
@@ -30,6 +31,7 @@ func (repo *SerialsFavouritesRepoPostgres) GetSerialsFavouritesById(id int) (*mo
 	serialFavourite := &models.SerialsFavourites{}
 	err := repo.db.Get(serialFavourite, "SELECT * FROM serials_favourites WHERE sf_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return serialFavourite, nil
@@ -40,6 +42,7 @@ func (repo *SerialsFavouritesRepoPostgres) GetSerialsByFavouriteId(id int) ([]*m
 	serialsFavourites := []*models.SerialsFavourites{}
 	err := repo.db.Select(&serialsFavourites, "SELECT * FROM serials_favourites WHERE sf_idFavourite=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return serialsFavourites, nil
@@ -50,6 +53,7 @@ func (repo *SerialsFavouritesRepoPostgres) GetFavouritesBySerialId(id int) ([]*m
 	serialsFavourites := []*models.SerialsFavourites{}
 	err := repo.db.Select(&serialsFavourites, "SELECT * FROM serials_favourites WHERE sf_idSerial=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return nil, err
 	}
 	return serialsFavourites, nil
@@ -65,6 +69,7 @@ func (repo *SerialsFavouritesRepoPostgres) CreateSerialsFavourites(serialFavouri
 	err := repo.db.QueryRow("INSERT INTO serials_favourites (sf_idSerial, sf_idFavourite) VALUES ($1, $2) RETURNING sf_id",
 		serialFavourite.GetIdSerial(), serialFavourite.GetIdFavourite()).Scan(&id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	serialFavourite.SetId(int(id))
@@ -82,6 +87,7 @@ func (repo *SerialsFavouritesRepoPostgres) UpdateSerialsFavourites(serialFavouri
 		serialFavourite.GetIdSerial(), serialFavourite.GetIdFavourite(), serialFavourite.GetId())
 
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 
@@ -101,6 +107,7 @@ func (repo *SerialsFavouritesRepoPostgres) DeleteSerialById(idfav, idserial int)
 	repo.log.Info("Deleting serials_favourites from the database")
 	_, err := repo.db.Exec("DELETE FROM serials_favourites WHERE sf_idFavourite=$1 AND sf_idSerial=$2", idfav, idserial)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	return nil
@@ -110,6 +117,7 @@ func (repo *SerialsFavouritesRepoPostgres) DeleteSerialsFavourites(id int) error
 	repo.log.Info("Deleting serials_favourites from the database")
 	_, err := repo.db.Exec("DELETE FROM serials_favourites WHERE sf_id=$1", id)
 	if err != nil {
+		repo.log.Errorf("Error: %v", err)
 		return err
 	}
 	return nil
